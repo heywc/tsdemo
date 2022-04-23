@@ -1,19 +1,23 @@
-#TypeScript
+# TypeScript
+
+> #### 浅尝 TS
+>
+> 这两天我根据 B 站的某某教学视频速刷了一遍 TypeScript,看完的同时做了以下的知识点总结。虽然花的时间不多，但是收货也还是有的~
 
 ## 初识
 
 ### TypeScript 是什么？
 
-1. 以 JavaScript 为基础构建的语言
+1. 以 JavaScript 为基础构建的强类型语言
 2. 是 JavaScript 的超集,拓展了 JavaScript,并添加了类型
 3. TS 不能被 JS 解析器直接执行,需要先进行编译，转换成 JS
 
 ### TypeScript 相对 JS 新增了什么？
 
-1. 类型
-2. 添加 ES 不具备的新特性
+1. 类型 （作为强类型语言，它毫无疑问增加了类型的声明）
+2. 添加 ES 不具备的新特性（元组、泛型、接口等）
 3. 丰富的配置选项（可以被编译成不同版本的 js）
-4. 强大的开发工具
+4. 强大的开发工具（作为 vscode 的底层开发语言，实现在开发中一些提示等）
 
 ### TypeScript 开发环境搭建
 
@@ -137,7 +141,6 @@ if (typeof a === "string") {
 ```ts
 b = a as string;
 // 或者
-
 b = <string>a;
 ```
 
@@ -407,3 +410,327 @@ module.exports = {
   },
 }
 ```
+
+## 类
+
+### 简介
+
+1. 实例属性：通过实例对象进行访问,可修改
+2. 只读属性：通过实例对象进行访问,不可修改
+3. 类属性（静态属性）： 通过类进行访问,可修改
+4. 实例方法：通过实例对象进行调用
+5. 类方法（类方法）：通过类进行调用
+
+```ts
+class Person {
+  // 实例属性 通过实例对象进行访问 可修改
+  name: string = "ywc";
+  age: number = 25;
+  // 只读属性 通过实例对象进行访问 无法被修改
+  readonly collage: string = "南开大学";
+  // 静态属性（类属性） 通过类进行访问
+  static type: string = "animal";
+  // 静态只读
+  static readonly hh: string = "haha";
+
+  // 实例方法 通过实例对象进行调用
+  sayHello() {
+    console.log("hello");
+  }
+  // static 类型方法 通过类进行调用
+  static walk() {
+    console.log("walking");
+  }
+}
+```
+
+### 构造函数
+
+- 构造函数在实例对象创建时会被调用
+- 构造函数内部的 this 就是当前创建的实例对象
+- 可以通过 this 向新创建的对象中添加属性
+- 举例如下：
+
+```ts
+// 举例
+class Dog {
+  name: string;
+  age: number;
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+    console.log(this);
+  }
+}
+const dog = new Dog("小黑", 3);
+```
+
+### 继承-- extends
+
+- 如果多个类存在公共属性和方法可以将公共部分抽离成一个公共类
+- 子类可以通过继承的方式获取到父类的属性和方法，从而减少重复代码
+- 如果子类中存在和父类相同的方法将会覆盖父类的方法
+- 举例如下：
+
+```ts
+// 公共类 Animal
+class Animal {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  bark() {
+    alert("the Animal is barking!");
+  }
+}
+// 子类 Dog 继承自 Animal
+class Dog extends Animal {
+  bark() {
+    alert(`${this.name} is barking`);
+  }
+}
+// 子类 Cat 继承自 Animal
+class Cat extends Animal {
+  bark() {
+    alert(`${this.name} is barking`);
+  }
+}
+const dog = new Dog("小白", 1);
+const cat = new Cat("小黑", 2);
+console.log(dog);
+console.log(cat);
+dog.bark();
+cat.bark();
+```
+
+### super
+
+- 派生类的构造函数必须包含`super`调用,否则报错
+- 派生类（子类）中如果 `super` 后跟着方法，则表示 `super` 代表父类；如果跟着参数则 `super` 代表父类构造函数
+- 举例：
+
+```ts
+class Animal {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  bark() {
+    alert("the Animal is barking!");
+  }
+}
+class Dog extends Animal {
+  age: number;
+  constructor(name: string, age: number) {
+    super(name);
+    this.age = age;
+  }
+  dogBark() {
+    super.bark();
+  }
+}
+const dog = new Dog("小白", 1);
+console.log(dog);
+dog.bark();
+dog.dogBark();
+```
+
+### 抽象类 abstract
+
+- 和普通类区别不大，只是不能用来创建对象
+- 抽象类专门为了当父类
+- 提供抽象方法，子类必须对该方法进行改写,否则无法继承
+- 举例
+
+```ts
+abstract class Animal {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  abstract bark(): void;
+}
+class Dog extends Animal {
+  bark() {
+    alert("dog is barking!");
+  }
+}
+const dog = new Dog("小白");
+console.log(dog);
+dog.bark();
+```
+
+### 接口 interface
+
+- 接口在定义类或对象时会限制其的结构
+- 接口中的所有属性不能有实际值
+- 接口中的方法只能是抽象方法
+- 举例：
+
+```ts
+// 用type来定义对象的属性结构
+type myType = {
+  name: string;
+  age: number;
+};
+const obj: myType = {
+  name: "ywc",
+  age: 12,
+};
+console.log(obj);
+
+// 接口同样能实现type的功能来定义对象的属性结构
+interface myInterface {
+  name: string;
+  age: number;
+}
+const obj2: myInterface = {
+  name: "小鱼",
+  age: 25,
+};
+console.log(obj2);
+// 用接口定义类的结构,方法必须是抽象方法
+interface myInterf {
+  name: string;
+  sayHello(): void;
+}
+class Person implements myInterf {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  sayHello(): void {
+    console.log("hello");
+  }
+}
+const man1 = new Person("ywc");
+console.log(man1);
+man1.sayHello();
+```
+
+### 属性封装
+
+- 属性的三种修饰符：public(默认)、private(私有属性,类外部无法访问)、protected(保护属性)
+- 私有属性只能在当前类进行访问。如果子类和实例对象需要进行读写操作，可以通过 setter 方式添加相应的校验设置私有属性；通过 getter 获取私有属性
+- 保护属性只能在当前类和子类中进行访问
+
+```ts
+class Dog {
+  public _name: string;
+  private _age: number;
+  constructor(_name: string, _age: number) {
+    this._name = _name;
+    if (_age > 0) {
+      this._age = _age;
+    } else {
+      this._age = 0;
+    }
+  }
+  // 属性存取器：setter getter
+  // 原生js获取私有属性的方式
+  getAge() {
+    return this._age;
+  }
+  // 原生js设置私有属性的方式
+  setAge(age: number) {
+    if (age > 0) {
+      this._age = age;
+    }
+  }
+  // TS 中设置getter的方式
+  get name() {
+    return this._name;
+  }
+  // TS 中设置setter的方式
+  set name(val: string) {
+    this._name = val;
+  }
+  get age() {
+    return this._age;
+  }
+  set age(val: number) {
+    if (val > 0) {
+      this._age = val;
+    }
+  }
+}
+const dog = new Dog("小白", 1);
+console.log(dog.getAge());
+dog.setAge(8);
+console.log(dog); // Dog {_name: '小白', _age: 8}
+dog._name = "小呵"; // 公共属性 修改成功
+// dog._age = 10; // 私有属性 访问报错
+// dog.age = -1; // 修改失败
+dog.age = 10; // 修改成功
+console.log(dog); // Dog {_name: '小呵', _age: 10}
+
+// -------------------------------------
+class A {
+  protected age: number;
+  constructor(age: number) {
+    this.age = age;
+  }
+}
+class B extends A {
+  tellAge() {
+    console.log(this.age);
+  }
+}
+const smallB = new B(12);
+console.log(smallB);
+// console.log(smallB.age); // 属性“age”受保护，只能在类“A”及其子类中访问
+smallB.tellAge(); // 12
+```
+
+## 泛型
+
+- 定义函数或者类时，如果类型不明确那么就可以使用泛型
+- 可以用一个或多个变量来表示不明确的属性类型
+- 举例
+
+```ts
+// 单个泛型
+function fn<T>(a: T): T {
+  console.log(a);
+  return a;
+}
+fn(12); // 未指定属性类型，则根据传参类型自动推断
+fn<string>("1299999"); // 指定属性类型
+
+// 指定多个泛型
+function fn2<T, K>(a: T, b: K): T {
+  console.log(b);
+  let res: T = a;
+  return res;
+}
+fn2("ywc", "yyy");
+console.log(fn2("ywc", "yyy"));
+
+// 泛型可以是接口的子类
+interface Inter {
+  length: number;
+}
+function getLength<T extends Inter>(a: T): number {
+  return a.length;
+}
+const target = {
+  length: 11,
+  name: "hh",
+};
+console.log(getLength(target)); // 11
+// 泛型在类中的使用
+class Person<T> {
+  name: T;
+  constructor(name: T) {
+    this.name = name;
+  }
+}
+const person1 = new Person("ywc");
+const person2 = new Person<string>("yyy");
+console.log(person1); // Person {name: 'ywc'}
+console.log(person2); // Person {name: 'yyy'}
+```
+
+这是我目前对 typescript 的一些认知吧。后期在 vue3 中使用 ts，加深对 ts 的认识后，还会再写一篇关于 TypeScript 的知识分享。
+源码地址：https://github.com/heywc/tsdemo.git
+![](https://img.soogif.com/5HkHKKxGJ6ZmhQ7c8nLYOE9jfEXDpqp4.gif?scope=mdnice)
